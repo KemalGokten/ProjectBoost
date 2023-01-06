@@ -1,6 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(AudioSource))]
 
 public class Movement : MonoBehaviour
 {
@@ -12,42 +13,50 @@ public class Movement : MonoBehaviour
 
     private Rigidbody _rigidbody;
 
-    // Start is called before the first frame update
+    private AudioSource _audioSource;
+
     private void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
+        _audioSource = GetComponent<AudioSource>();
     }
 
-    // Update is called once per frame
     private void Update()
     {
-        ProcessThrust();
-        ProcessRotation();
+        processThrust();
+        processRotation();
     }
-
-    private void ProcessThrust()
+     
+    private void processThrust()
     {
         if (Input.GetKey(KeyCode.Space))
         {
             _rigidbody.AddRelativeForce(Vector3.up * _mainThrust * Time.deltaTime);
-            Debug.LogFormat("You pressed Space - {0}", this.name);
+            if (!_audioSource.isPlaying)
+            {
+                _audioSource.Play();
+            }
+        }
+        else
+        {
+            _audioSource.Stop();
         }
     }
 
-    private void ProcessRotation()
+    private void processRotation()
     {
         if (Input.GetKey(KeyCode.A))
         {
-            ApplyRotation(_rotationThrust);
+            applyRotation(_rotationThrust);
         }
 
         else if (Input.GetKey(KeyCode.D))
         {
-            ApplyRotation(-_rotationThrust);
+            applyRotation(-_rotationThrust);
         }
     }
 
-    private void ApplyRotation(float rotationThisFrame)
+    private void applyRotation(float rotationThisFrame)
     {
         _rigidbody.freezeRotation = true; // freezing rotation so we can manually rotate.
         transform.Rotate(Vector3.forward * rotationThisFrame * Time.deltaTime);
